@@ -1,0 +1,6 @@
+{
+  "appId": "com.siddhant.planner",
+  "appName": "Nursing Planner",
+  "webDir": ".",
+  "bundledWebRuntime": false
+}
