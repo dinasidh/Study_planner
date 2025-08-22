@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>✨ Nursing Study Planner ✨</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff69b4">
+<script>
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(()=>console.log('Service Worker Registered'));
+}
+</script>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+    body {
+        margin:0; padding:0;
+        font-family: 'Montserrat', sans-serif;
+        background: linear-gradient(to bottom, #a1c4fd, #c2e9fb);
+        overflow-x: hidden;
+    }
+    h1 { text-align:center; color:#ff69b4; margin-top:15px; text-shadow: 0 0 8px #fff; }
+    .container { width: 90%; max-width: 450px; margin: 0 auto; padding-bottom: 50px; }
+    .dayCard {
+        background: rgba(255,255,255,0.8);
+        border-radius: 15px;
+        margin: 15px 0;
+        padding: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s;
+    }
+    .dayCard:hover { transform: scale(1.03); }
+    .dayTitle { font-weight:700; color:#ff1493; font-size:18px; }
+    ul { list-style:none; padding:0; margin:10px 0; }
+    li { margin:8px 0; padding:6px; background: rgba(255,192,203,0.3); border-radius:8px; cursor:pointer; transition: all 0.3s; }
+    li.done { background: rgba(144,238,144,0.6); text-decoration:line-through; }
+    .floatingStar {
+        position:absolute;
+        color: #fff;
+        font-size: 12px;
+        opacity: 0.8;
+        animation: floatStar linear forwards;
+    }
+    @keyframes floatStar {
+        0% { transform: translateY(0) rotate(0deg); opacity:1; }
+        100% { transform: translateY(-300px) rotate(360deg); opacity:0; }
+    }
+    .progressBar { width:100%; background:#eee; border-radius:12px; height:20px; margin-top:10px; overflow:hidden; }
+    .progressFill { height:100%; width:0%; background: #ff69b4; transition: width 0.5s; border-radius:12px; }
+</style>
+</head>
+<body>
+
+<h1>✨ Nursing Study Planner ✨</h1>
+<div class="container" id="plannerContainer"></div>
+<div style="text-align:center; font-size:18px; color:#ff1493; margin-bottom:10px; text-shadow:0 0 5px #fff;">
+    This special planner is for <strong>Sanjana 💖</strong>
+</div>
+<div class="container" id="plannerContainer"></div>
+<script>
+const plannerContainer = document.getElementById('plannerContainer');
+
+const weeklyPlan = {
+    "Monday":["Pharmacology – Drugs & Doses","Review Patient Cases","Hydration & Breaks"],
+    "Tuesday":["Anatomy & Physiology – Systems","Flashcards","Short Revision Quiz"],
+    "Wednesday":["Clinical Procedures Practice","Vitals & Injections","Mindful Break"],
+    "Thursday":["Case Studies & Scenarios","Documentation","Mini Self-Care"],
+    "Friday":["Medical Terminology","Exam Prep Notes","Motivational Reminder"],
+    "Saturday":["Mock Tests","Flashcards Review","Celebrate Progress"],
+    "Sunday":["Self-Care & Reflection","Plan Next Week","Relax & Unwind"]
+};
+
+// Generate day cards
+for(const day in weeklyPlan){
+    const card = document.createElement('div');
+    card.className = 'dayCard';
+    const title = document.createElement('div');
+    title.className = 'dayTitle';
+    title.textContent = day;
+    card.appendChild(title);
+
+    const ul = document.createElement('ul');
+    weeklyPlan[day].forEach(task=>{
+        const li = document.createElement('li');
+        li.textContent = task;
+        li.onclick = ()=> {
+            li.classList.toggle('done');
+            updateProgress();
+        }
+        ul.appendChild(li);
+    });
+    card.appendChild(ul);
+
+    // Progress bar
+    const progressBar = document.createElement('div');
+    progressBar.className='progressBar';
+    const progressFill = document.createElement('div');
+    progressFill.className='progressFill';
+    progressBar.appendChild(progressFill);
+    card.appendChild(progressBar);
+
+    plannerContainer.appendChild(card);
+}
+
+// Update progress for each day
+function updateProgress(){
+    document.querySelectorAll('.dayCard').forEach(card=>{
+        const tasks = card.querySelectorAll('li');
+        const done = card.querySelectorAll('li.done').length;
+        const percent = Math.round((done/tasks.length)*100);
+        card.querySelector('.progressFill').style.width = percent+'%';
+        if(percent===100){
+            showFloatingStars(card);
+        }
+    });
+}
+
+// Floating stars animation
+function showFloatingStars(card){
+    for(let i=0;i<8;i++){
+        const star = document.createElement('div');
+        star.className='floatingStar';
+        star.style.left = Math.random()*card.offsetWidth + 'px';
+        star.style.top = card.offsetHeight + 'px';
+        star.style.fontSize = (10 + Math.random()*10)+'px';
+        star.textContent='⭐';
+        card.appendChild(star);
+        setTimeout(()=> star.remove(), 3000 + Math.random()*1000);
+    }
+}
+
+// Hydration reminder every 4 hours
+setInterval(()=>{
+    alert("💧 Time to drink water and stay energized!");
+}, 4*60*60*1000);
+
+</script>
+</body>
+</html>
