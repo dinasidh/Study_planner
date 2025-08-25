@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>✨ Nursing Study Planner ✨</title>
+<title>✨Study Planner✨</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ff69b4">
 <script>
@@ -13,6 +13,7 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <style>
+
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
     body {
         margin:0; padding:0;
@@ -54,7 +55,7 @@ if ('serviceWorker' in navigator) {
 </head>
 <body>
 
-<h1>✨ Nursing Study Planner ✨</h1>
+<h1>✨Study Planner ✨</h1>
 <div class="container" id="plannerContainer"></div>
 <div style="text-align:center; font-size:18px; color:#ff1493; margin-bottom:10px; text-shadow:0 0 5px #fff;">
     This special planner is for <strong>You💖</strong>
@@ -63,80 +64,86 @@ if ('serviceWorker' in navigator) {
 <script>
 const plannerContainer = document.getElementById('plannerContainer');
 
-const weeklyPlan = {
-    "Monday":["Pharmacology – Drugs & Doses","Review Patient Cases","Hydration & Breaks"],
-    "Tuesday":["Anatomy & Physiology – Systems","Flashcards","Short Revision Quiz"],
-    "Wednesday":["Clinical Procedures Practice","Vitals & Injections","Mindful Break"],
-    "Thursday":["Case Studies & Scenarios","Documentation","Mini Self-Care"],
-    "Friday":["Medical Terminology","Exam Prep Notes","Motivational Reminder"],
-    "Saturday":["Mock Tests","Flashcards Review","Celebrate Progress"],
-    "Sunday":["Self-Care & Reflection","Plan Next Week","Relax & Unwind"]
-};
+    // Load saved plan from localStorage (or start with empty days)
+    let weeklyPlan = JSON.parse(localStorage.getItem("weeklyPlan")) || {
+        "Monday": [],
+        "Tuesday": [],
+        "Wednesday": [],
+        "Thursday": [],
+        "Friday": [],
+        "Saturday": [],
+        "Sunday": []
+    };
 
-// Generate day cards
-for(const day in weeklyPlan){
-    const card = document.createElement('div');
-    card.className = 'dayCard';
-    const title = document.createElement('div');
-    title.className = 'dayTitle';
-    title.textContent = day;
-    card.appendChild(title);
+    function savePlan() {
+        localStorage.setItem("weeklyPlan", JSON.stringify(weeklyPlan));
+    }
 
-    const ul = document.createElement('ul');
-    weeklyPlan[day].forEach(task=>{
+    // Generate cards for each day
+    for(const day in weeklyPlan){
+        const card = document.createElement('div');
+        card.className = 'dayCard';
+
+        const title = document.createElement('div');
+        title.className = 'dayTitle';
+        title.textContent = day;
+        card.appendChild(title);
+
+        const ul = document.createElement('ul');
+        weeklyPlan[day].forEach(task=>{
+            createTaskItem(ul, day, task);
+        });
+        card.appendChild(ul);
+
+        // Add new subject input
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Add subject...';
+        input.style.width = "65%";
+        input.style.marginTop = "8px";
+
+        const addBtn = document.createElement('button');
+        addBtn.textContent = "+";
+        addBtn.style.marginLeft = "5px";
+        addBtn.onclick = ()=>{
+            if(input.value.trim()!==""){
+                weeklyPlan[day].push(input.value);
+                createTaskItem(ul, day, input.value);
+                savePlan();
+                input.value="";
+            }
+        };
+
+        card.appendChild(input);
+        card.appendChild(addBtn);
+
+        plannerContainer.appendChild(card);
+    }
+
+    // Create subject item
+    function createTaskItem(ul, day, task){
         const li = document.createElement('li');
         li.textContent = task;
-        li.onclick = ()=> {
-            li.classList.toggle('done');
-            updateProgress();
-        }
+
+        // Delete button
+        const delBtn = document.createElement('button');
+        delBtn.textContent = "x";
+        delBtn.style.marginLeft = "10px";
+        delBtn.style.background = "#ff4444";
+        delBtn.style.color = "#fff";
+        delBtn.style.border = "none";
+        delBtn.style.padding = "2px 6px";
+        delBtn.style.borderRadius = "5px";
+        delBtn.onclick = ()=>{
+            weeklyPlan[day] = weeklyPlan[day].filter(t => t !== task);
+            savePlan();
+            li.remove();
+        };
+
+        li.appendChild(delBtn);
         ul.appendChild(li);
-    });
-    card.appendChild(ul);
-
-    // Progress bar
-    const progressBar = document.createElement('div');
-    progressBar.className='progressBar';
-    const progressFill = document.createElement('div');
-    progressFill.className='progressFill';
-    progressBar.appendChild(progressFill);
-    card.appendChild(progressBar);
-
-    plannerContainer.appendChild(card);
-}
-
-// Update progress for each day
-function updateProgress(){
-    document.querySelectorAll('.dayCard').forEach(card=>{
-        const tasks = card.querySelectorAll('li');
-        const done = card.querySelectorAll('li.done').length;
-        const percent = Math.round((done/tasks.length)*100);
-        card.querySelector('.progressFill').style.width = percent+'%';
-        if(percent===100){
-            showFloatingStars(card);
-        }
-    });
-}
-
-// Floating stars animation
-function showFloatingStars(card){
-    for(let i=0;i<8;i++){
-        const star = document.createElement('div');
-        star.className='floatingStar';
-        star.style.left = Math.random()*card.offsetWidth + 'px';
-        star.style.top = card.offsetHeight + 'px';
-        star.style.fontSize = (10 + Math.random()*10)+'px';
-        star.textContent='⭐';
-        card.appendChild(star);
-        setTimeout(()=> star.remove(), 3000 + Math.random()*1000);
     }
-}
-
-// Hydration reminder every 4 hours
-setInterval(()=>{
-    alert("💧 Time to drink water and stay energized!");
-}, 4*60*60*1000);
-
 </script>
 </body>
 </html>
+
